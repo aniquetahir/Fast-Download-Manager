@@ -49,6 +49,30 @@ public class DStatus implements Serializable {
     };
     
     public void close(){
+        //Save Downloads
+        for(int key:dictionary.keySet()){
+            try{
+                FileOutputStream fosDownload = new FileOutputStream("downloads/"+key);
+                ObjectOutputStream oosDownload = new ObjectOutputStream(fosDownload);
+                Download thisDown = dictionary.get(key);
+                
+                //Dont write a file which has no data in it
+                if(thisDown.parts!=null){
+                    oosDownload.writeObject(thisDown);
+                    oosDownload.flush();oosDownload.close();
+                }
+                
+                //Remove Data before saving config. We dont want the 
+                //solution to take up loads of memory when it reinitializes
+                thisDown.parts = null;
+                dictionary.put(key, thisDown);
+            }catch(Exception e){
+                System.out.println("Failed to save file");
+            }
+            
+        }
+        
+        //Save Config Data
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
         try {
