@@ -21,7 +21,7 @@ public class DStatus implements Serializable {
         int endByte;
         boolean status;
         byte[] data;
-    }    
+    }
     
     private class Download implements Serializable{
         private int id;

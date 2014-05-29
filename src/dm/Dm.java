@@ -1,13 +1,14 @@
 package dm;
 
 import com.dm.helpers.DStatus;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
@@ -17,17 +18,22 @@ import org.apache.http.impl.client.HttpClients;
  */
 public class Dm {
     private static final int DOWNLOAD_UNIT = 102400;//100kB
+    
     public static void main(String[] args) {
         DStatus dstats = DStatus.getConfig();
         if(dstats == null){
             dstats = new DStatus();
         }
+        
+        String url = "http://d10rb0yh5vi21i.cloudfront.net/d/img/one.png?20140403001";
+        
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet("http://37.media.tumblr.com/avatar_89bb09c35e4d_128.png");
+        HttpGet httpGet = new HttpGet(url);
         try{
             CloseableHttpResponse response = client.execute(httpGet);
-            StringEntity myEntity = new StringEntity("");
             HttpEntity respEntity = response.getEntity();
+            
+            
             Header[] responseHeaders = response.getAllHeaders();
             
             for(Header responseHeader:responseHeaders){
@@ -69,11 +75,33 @@ public class Dm {
                 System.arraycopy(tBuffer, 0, mainBuffer, j * DOWNLOAD_UNIT, tBuffer.length);
             }
             
+            FileOutputStream fos = new FileOutputStream(getFileName(url));
+            try{
+                fos.write(mainBuffer);
+                fos.flush();
+                
+            }catch(Exception e){
+                System.out.println("Failed to write");
+            }finally{
+                fos.close();
+            }
+            
             System.out.println(new String(mainBuffer,"UTF-8"));
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
         dstats.close();
+    }
+    
+    private static String getFileName(String url){
+        int start = url.lastIndexOf('/') + 1;
+        int end  = url.lastIndexOf('?');
+        
+        if(end==-1 || end<start){
+            return url.substring(start);
+        }else{
+            return url.substring(start, end);
+        }
     }
     
 }
