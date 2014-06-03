@@ -28,11 +28,11 @@ public class Manager {
         this.segments = segments;
     }
     
-    public byte[] getSegment(String url, long startByte) throws Exception{
+    public byte[] getSegment(String url, long startByte, long endByte) throws Exception{
         
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
-        httpGet.setHeader("Range", "bytes="+startByte+"-"); 
+        httpGet.setHeader("Range", "bytes="+startByte+"-"+((endByte==0)?"":endByte)); 
         try{
             CloseableHttpResponse response = client.execute(httpGet);
             HttpEntity respEntity = response.getEntity();
@@ -95,7 +95,6 @@ public class Manager {
 //            return null;
         }catch(Exception e){
             System.out.println(e.getMessage());
-        }finally{
             return null;
         }
     }
